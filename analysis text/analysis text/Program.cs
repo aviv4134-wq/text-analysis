@@ -12,7 +12,7 @@ namespace project
         Intel
     }
 
-    enum  Status 
+    enum Status 
     {
         Pending,
         Approved,
@@ -199,7 +199,7 @@ namespace project
             double avrage_score = CalculateAverage(Score, validRecordsCount);
             double maxScore = FindMaxScore(Score);
             double minScore = FindMinScore(Score);
-            Console.WriteLine($"""
+            string output =($"""
                 
                 === Report Statistics ===
                 Total Reports: {validRecordsCount}
@@ -207,6 +207,8 @@ namespace project
                 Highest Score: {maxScore}
                 Lowest Score: {minScore}
                 """);
+            SaveToFile(output);
+            Console.WriteLine(output);
         }
 
         static void DisplayStatusCounts(Status[] statuses, int validRecordsCount)
@@ -215,13 +217,16 @@ namespace project
             int PendingCount = CountByStatus(statuses, Status.Pending, validRecordsCount);
             int RejectedCount = CountByStatus(statuses, Status.Rejected, validRecordsCount);
 
-            Console.WriteLine($"""
+            string output = ($"""
                 
                 === Reports by Status ===
                 Pending: {PendingCount}
                 Approved: {ApprovedCount}
                 Rejected: {RejectedCount}
                 """);
+            SaveToFile(output);
+
+            Console.WriteLine(output);
         }
 
         static void DisplayTypeCounts(ReportType[] ReportTypes, int validRecordsCount)
@@ -231,7 +236,7 @@ namespace project
             int CollectCount = CountByType(ReportTypes, ReportType.Collect, validRecordsCount);
             int IntelCount = CountByType(ReportTypes, ReportType.Intel, validRecordsCount);
 
-            Console.WriteLine($"""
+            string output = ($"""
                 
                 === Reports by Type ===
                 Collect: {CollectCount}
@@ -239,6 +244,10 @@ namespace project
                 Recon: {ReconCount}
                 Intel: {IntelCount}
                 """);
+            SaveToFile(output);
+            Console.WriteLine(output);
+
+
         }
 
         static void DisplayHighestPriorityApproved(string[] Unitnames, ReportType[] ReportTypes, int[] Priority, double[] Score,Status[] Statuses, int validRecordsCount)
@@ -249,13 +258,15 @@ namespace project
                 if (Statuses[index] == Status.Approved & Priority[index] > HighestPriorityApprovedIndex)
                     HighestPriorityApprovedIndex = index;
             }
-            Console.WriteLine($"""
+            string output = ($"""
                 === Highest Priority Approved Report ===
                 Unit: {Unitnames[HighestPriorityApprovedIndex]}
                 Type: {ReportTypes[HighestPriorityApprovedIndex]}
                 Priority: {Priority[HighestPriorityApprovedIndex]}
                 Score: {Score[HighestPriorityApprovedIndex]}
                 """);
+            SaveToFile(output);
+            Console.WriteLine(output);
         }
 
         static void DisplayAverageByPriority(int[] Priority, double[] Score, int validRecordsCount)
@@ -292,15 +303,24 @@ namespace project
         {
             int invalidRecordsCount = linesCount - validRecordsCount;
 
-            Console.WriteLine($"""
+            string output = ($"""
                 
                 Processing complete.
                 Valid records:{validRecordsCount}
                 Invalid records:{invalidRecordsCount}
                 Stored {validRecordsCount} valid records for analysis
                 """);
+
+            SaveToFile(output);
+            Console.WriteLine(output);
         }
 
+        static void SaveToFile(string output)
+        {
+            
+            File.AppendAllText("output.txt", output);
+            
+        }
 
 
         static void Main()
@@ -311,6 +331,7 @@ namespace project
             double[] Score = new double[100];
             Status[] Statuses = new Status[100];
 
+            File.Create("output.txt").Close();
             string path = "reports.txt";
             string[] linesText = LoadFile(path);
 
