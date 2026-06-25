@@ -4,15 +4,15 @@ using System.Runtime.CompilerServices;
 
 namespace project
 {
-    enum ReportType
-    {   
+    enum ReportType 
+    {
         Collect,
         Analyze,
-        Recon,
+        Recon, 
         Intel
     }
 
-    enum  Status
+    enum  Status 
     {
         Pending,
         Approved,
@@ -59,35 +59,30 @@ namespace project
         }
 
       
-        
-
         static int ProcessReports(string[]linesText, string[]Unitnames, ReportType[] ReportType, int[] Priority, double[] Score, Status[] Status)
         {
             int validRecordsCount = 0;
             for (int i = 0; i < linesText.Length; i++)
             {
                 string[] report = linesText[i].Split(",");
-                if (report.Length != 5) continue;
-                
-                string unitname = report[0].Trim();
-                if (string.IsNullOrWhiteSpace(unitname)) continue;
-                
-                string reporttype = report[1].Trim();
-                if (!Enum.TryParse(reporttype, true, out ReportType parsedType)) continue;
-                
+              
+                if (! IsLength5(report)) 
+                    continue;
+                string unitName = report[0].Trim();
+                string reportType = report[1].Trim();
                 string priority = report[2].Trim();
-                if (!int.TryParse(priority, out int priorityParsed)) continue;
-                if (1 > priorityParsed || priorityParsed > 5) continue;
-                
                 string score = report[3].Trim();
-                if (!double.TryParse(score, out double scoreParsed)) continue;
-                if (0.0 > scoreParsed || scoreParsed > 100.0) continue;
-                
                 string status = report[4].Trim();
-                if(!Enum.TryParse(status, true, out Status parsedStatus)) continue;
-
-                Unitnames[validRecordsCount] = unitname;
-                ReportType[validRecordsCount] = parsedType;
+                if (!IsReportValid(unitName, reportType, priority, score, status)) 
+                    continue;
+                
+                ReportType parsedReportType = Enum.Parse<ReportType>(reportType,true);
+                int priorityParsed = int.Parse(priority);
+                double scoreParsed = double.Parse(score);
+                Status parsedStatus = Enum.Parse<Status>(status, true);
+                
+                Unitnames[validRecordsCount] = unitName;
+                ReportType[validRecordsCount] = parsedReportType;
                 Priority[validRecordsCount] = priorityParsed;
                 Score[validRecordsCount] = scoreParsed;
                 Status[validRecordsCount] = parsedStatus;
@@ -95,6 +90,57 @@ namespace project
             }
             return validRecordsCount;
         }
+
+        static bool IsLength5(string[] report)
+        {
+            if (report.Length != 5)
+            {
+                Console.WriteLine("{Invalid record:the report must be with 5 fields}");
+                return false;
+            }
+            return true;
+        }
+
+        static bool IsReportValid(string unitName, string reportType, string priority, string score, string status)
+        {
+            if (string.IsNullOrWhiteSpace(unitName))
+            {
+                Console.WriteLine("{Invalid record:the unitname is empty}");
+                return false;
+            }
+            if (!Enum.TryParse(reportType, true, out ReportType _))
+            {
+                Console.WriteLine("{Invalid record:the report type is not valid}");
+                return false;
+            }
+            if (!int.TryParse(priority, out int priorityParsed)) 
+            {
+                Console.WriteLine("{Invalid record:priority is not hole number}");
+                return false;
+            }
+            if (1 > priorityParsed || priorityParsed > 5) 
+            {
+                Console.WriteLine("{Invalid record: Priority out of range}");
+                return false;
+            }
+            if (!double.TryParse(score, out double scoreParsed))
+            {
+                Console.WriteLine("{Invalid record: Score is not a valid number}");
+                return false;
+            }
+            if (0.0 > scoreParsed || scoreParsed > 100.0)
+            {
+                Console.WriteLine("{Invalid record: Score is not a valid number}");
+                return false;
+            }
+            if (!Enum.TryParse(status, true, out Status parsedStatus))
+            {
+                Console.WriteLine("{Invalid record: the status not valid}");
+                return false;
+            }
+            Console.WriteLine("Valid record processed.");
+            return true;
+    }
 
         static double CalculateAverage(double[] Score,int validRecordsCount)
         {
@@ -242,6 +288,19 @@ namespace project
             }
         }
         
+        static void DisplayCountReportsValdation(int linesCount, int validRecordsCount)
+        {
+            int invalidRecordsCount = linesCount - validRecordsCount;
+
+            Console.WriteLine($"""
+                
+                Processing complete.
+                Valid records:{validRecordsCount}
+                Invalid records:{invalidRecordsCount}
+                Stored {validRecordsCount} valid records for analysis
+                """);
+        }
+
 
 
         static void Main()
@@ -252,26 +311,21 @@ namespace project
             double[] Score = new double[100];
             Status[] Statuses = new Status[100];
 
-            string? path = "reports.txt";       
+            string path = "reports.txt";
             string[] linesText = LoadFile(path);
-            if (linesText == null) return;
+
             int linesCount = linesText.Length;
             Console.WriteLine($"File loaded: {linesCount} lines found.");
             
             int validRecordsCount = ProcessReports(linesText, Unitnames, ReportTypes, Priority, Score, Statuses);
-            int invalidRecordsCount = linesCount - validRecordsCount;
-            Console.WriteLine($"""
-                
-                Processing complete.
-                Valid records:{validRecordsCount}
-                Invalid records:{invalidRecordsCount}
-                Stored {validRecordsCount} valid records for analysis
-                """);
+            
+            DisplayCountReportsValdation(linesCount, validRecordsCount);
             DisplayBasicStatistics(Score, validRecordsCount);
             DisplayStatusCounts(Statuses, validRecordsCount);
             DisplayTypeCounts(ReportTypes, validRecordsCount);
             DisplayHighestPriorityApproved(Unitnames, ReportTypes, Priority, Score, Statuses, validRecordsCount);
             DisplayAverageByPriority(Priority, Score, validRecordsCount);
+            Console.ReadLine();
 
         }
     }
