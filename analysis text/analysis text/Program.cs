@@ -253,10 +253,14 @@ namespace project
         static void DisplayHighestPriorityApproved(string[] Unitnames, ReportType[] ReportTypes, int[] Priority, double[] Score,Status[] Statuses, int validRecordsCount)
         {
             int HighestPriorityApprovedIndex = 0;
+            int HighestPriorityApproved = 0;
             for (int index = 0;index < validRecordsCount; index++)
             {
-                if (Statuses[index] == Status.Approved & Priority[index] > HighestPriorityApprovedIndex)
+                if (Statuses[index] == Status.Approved & Priority[index] > HighestPriorityApproved)
+                {
                     HighestPriorityApprovedIndex = index;
+                    HighestPriorityApproved = Priority[index];
+                }            
             }
             string output = ($"""
                 === Highest Priority Approved Report ===
@@ -333,7 +337,9 @@ namespace project
 
             File.Create("output.txt").Close();
             string path = "reports.txt";
-            string[] linesText = LoadFile(path);
+            string[]? linesText = LoadFile(path);
+            
+            if (linesText == null) return; 
 
             int linesCount = linesText.Length;
             Console.WriteLine($"File loaded: {linesCount} lines found.");
@@ -346,6 +352,7 @@ namespace project
             DisplayTypeCounts(ReportTypes, validRecordsCount);
             DisplayHighestPriorityApproved(Unitnames, ReportTypes, Priority, Score, Statuses, validRecordsCount);
             DisplayAverageByPriority(Priority, Score, validRecordsCount);
+            Console.WriteLine("enter to exit");
             Console.ReadLine();
 
         }
