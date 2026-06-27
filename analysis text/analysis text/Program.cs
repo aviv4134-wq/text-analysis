@@ -353,7 +353,7 @@ namespace project
             DisplayHighestPriorityApproved(Unitnames, ReportTypes, Priority, Score, Statuses, validRecordsCount);
             DisplayAverageByPriority(Priority, Score, validRecordsCount);
             Console.WriteLine("enter to exit");
-            Console.ReadLine();
+            
 
         }
     }
