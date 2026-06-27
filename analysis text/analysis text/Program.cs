@@ -322,7 +322,7 @@ namespace project
         static void SaveToFile(string output)
         {
             
-            File.AppendAllText("output.txt", output);
+            File.AppendAllText("output2.txt", output);
             
         }
 
@@ -335,7 +335,7 @@ namespace project
             double[] Score = new double[100];
             Status[] Statuses = new Status[100];
 
-            File.Create("output.txt").Close();
+            File.Create("output2.txt").Close();
             string path = "reports.txt";
             string[]? linesText = LoadFile(path);
             
@@ -352,7 +352,7 @@ namespace project
             DisplayTypeCounts(ReportTypes, validRecordsCount);
             DisplayHighestPriorityApproved(Unitnames, ReportTypes, Priority, Score, Statuses, validRecordsCount);
             DisplayAverageByPriority(Priority, Score, validRecordsCount);
-            Console.WriteLine("enter to exit");
+            
             
 
         }
